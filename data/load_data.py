@@ -116,5 +116,4 @@ order_data = clean_csv(order_csv_file)
 load_data_to_sqlite(order_data, customer_table_name, db_file)
 load_data_to_sqlite(customer_data, orders_table_name, db_file)
 
-
  
