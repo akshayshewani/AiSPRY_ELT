@@ -14,7 +14,18 @@ sqlite_keywords = set([
         "TRANSACTION", "TRIGGER", "UNION", "UNIQUE", "UPDATE", "USING", "VACUUM", "VALUES", "VIEW", "VIRTUAL", 
         "WHEN", "WHERE", "WITH", "WITHOUT"
     ])
-    
+
+def infer_data_type_sqlite(value):
+    if isinstance(value, int):
+        return "INTEGER"
+    elif isinstance(value, float):
+        return "REAL"
+    elif isinstance(value, str):
+        return "TEXT"
+    elif isinstance(value, bytes):
+        return "BLOB"
+    else:
+        return "TEXT"  # Default to TEXT for any other types or None values
 
 
 def clean_columns(columns, sqlite_keywords):
@@ -77,11 +88,18 @@ def load_data_to_sqlite(data, table_name, db_file):
     
     columns = clean_columns(columns, sqlite_keywords)
 
+    first_row = data[0]
+    column_types = []
+    for cleaned_column_name, value in zip(columns, first_row.values()):
+        col_type = infer_data_type_sqlite(value)
+        column_types.append(f"{cleaned_column_name} {col_type}")
+
+
     drop_table_query = f"DROP TABLE IF EXISTS {table_name}"
     c.execute(drop_table_query)
 
     # Create the table with new column names
-    create_table_query = f"CREATE TABLE {table_name} ({', '.join([f'{col} TEXT' for col in columns])})"
+    create_table_query = f"CREATE TABLE {table_name} ({', '.join(column_types)})"
     c.execute(create_table_query)
 
     # Insert data into the table
