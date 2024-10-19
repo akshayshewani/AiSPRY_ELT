@@ -1,1 +1,1 @@
-pip install torch
+pip install torch langchain langchain-ollama ollama langchain_community pyprojroot
